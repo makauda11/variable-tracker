@@ -125,17 +125,45 @@
   <div class="tbl-card">
     <div class="tbl-head">
       <span class="tbl-title">Todas las expansiones</span>
-      <select class="filter-sel" id="filterStatus" onchange="render()">
-        <option value="">Todos</option>
-        <option value="Closed">Closed Won</option>
-        <option value="To Be Closed">To Be Closed</option>
-      </select>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <select class="filter-sel" id="filterStatus" onchange="render()">
+          <option value="">Todos los estados</option>
+          <option value="Closed">Closed Won</option>
+          <option value="To Be Closed">To Be Closed</option>
+        </select>
+        <select class="filter-sel" id="filterProduct" onchange="render()">
+          <option value="">Todos los productos</option>
+          <option value="MAD">MAD</option>
+          <option value="MDM">MDM</option>
+        </select>
+        <select class="filter-sel" id="filterQuarter" onchange="render()">
+          <option value="">Todos los quarters</option>
+          <option value="Q1 2026">Q1 2026</option>
+          <option value="Q2 2026">Q2 2026</option>
+          <option value="Q3 2026">Q3 2026</option>
+          <option value="Q4 2026">Q4 2026</option>
+        </select>
+        <select class="filter-sel" id="filterBigLogo" onchange="render()">
+          <option value="">Big Logo: todos</option>
+          <option value="Yes">Big Logo: Yes</option>
+          <option value="No">Big Logo: No</option>
+        </select>
+      </div>
     </div>
     <div class="tbl-wrap">
       <table>
         <thead><tr>
-          <th>Cliente</th><th>Tipo</th><th>Driver</th><th>Producto</th><th>ARR</th>
-          <th>Estado</th><th>Forecast</th><th>Big Logo</th><th>Mes</th><th>Q</th><th></th>
+          <th onclick="setSort('client')" style="cursor:pointer">Cliente <span id="s-client"></span></th>
+          <th>Tipo</th>
+          <th>Driver</th>
+          <th>Producto</th>
+          <th onclick="setSort('arr')" style="cursor:pointer">ARR <span id="s-arr"></span></th>
+          <th>Estado</th>
+          <th>Forecast</th>
+          <th>Big Logo</th>
+          <th onclick="setSort('month')" style="cursor:pointer">Mes <span id="s-month"></span></th>
+          <th onclick="setSort('quarter')" style="cursor:pointer">Q <span id="s-quarter"></span></th>
+          <th></th>
         </tr></thead>
         <tbody id="tbl-body"></tbody>
       </table>
@@ -212,6 +240,16 @@ let entries=JSON.parse(localStorage.getItem('vt_entries')||'null')||INIT;
 let nextId=Math.max(...entries.map(e=>e.id))+1;
 let editId=null;
 let chart=null;
+let sortKey='month';
+let sortDir=1;
+
+function setSort(k){
+  if(sortKey===k)sortDir*=-1;
+  else{sortKey=k;sortDir=1;}
+  render();
+}
+
+const MONTH_IDX={Jan:1,Feb:2,Mar:3,Apr:4,May:5,Jun:6,Jul:7,Aug:8,Sep:9,Oct:10,Nov:11,Dec:12};
 
 function save(){localStorage.setItem('vt_entries',JSON.stringify(entries));}
 
@@ -233,8 +271,29 @@ function calcBonus(arr){
 }
 
 function render(){
-  const f=document.getElementById('filterStatus').value;
-  const shown=f?entries.filter(e=>e.status===f):entries;
+  const fs=document.getElementById('filterStatus').value;
+  const fp=document.getElementById('filterProduct').value;
+  const fq=document.getElementById('filterQuarter').value;
+  const fb=document.getElementById('filterBigLogo').value;
+  let shown=entries.filter(e=>
+    (!fs||e.status===fs)&&
+    (!fp||e.product===fp)&&
+    (!fq||e.quarter===fq)&&
+    (!fb||e.bigLogo===fb)
+  );
+  // sort
+  shown.sort((a,b)=>{
+    let av=a[sortKey],bv=b[sortKey];
+    if(sortKey==='arr'){av=+av;bv=+bv;}
+    else if(sortKey==='month'){av=MONTH_IDX[normalizeMonth(av)]||0;bv=MONTH_IDX[normalizeMonth(bv)]||0;}
+    else{av=(av||'').toLowerCase();bv=(bv||'').toLowerCase();}
+    return av>bv?sortDir:av<bv?-sortDir:0;
+  });
+  // sort indicators
+  ['client','arr','month','quarter'].forEach(k=>{
+    const el=document.getElementById('s-'+k);
+    if(el)el.textContent=sortKey===k?(sortDir===1?' ↑':' ↓'):'';
+  });
   const closed=entries.filter(e=>e.status==='Closed');
   const cArr=closed.reduce((a,e)=>a+e.arr,0);
   const pipe=entries.filter(e=>e.status==='To Be Closed').reduce((a,e)=>a+e.arr,0);
