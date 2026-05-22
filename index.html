@@ -494,8 +494,8 @@ function renderBonus(){
   document.getElementById('b-churn-list').innerHTML=
     churns.map(c=>`
       <div class="list-row">
-        <span class="list-label">${c.client} <span class="badge bd" style="font-size:10px">${c.product}</span>${c.date?` <span style="color:var(--muted);font-size:10px">${c.date}</span>`:''}</span>
-        <span style="display:flex;align-items:center;gap:8px"><span class="list-val-red">-${fmt(c.arr)}</span><button class="del-btn" onclick="delChurn(${c.id})">✕</button></span>
+        <span class="list-label">${c.client} <span class="badge bd" style="font-size:10px">${c.product}</span>${c.date?` <span style="color:var(--muted);font-size:10px">${c.date}</span>`:' <span style="color:var(--muted);font-size:10px">sin fecha</span>'}</span>
+        <span style="display:flex;align-items:center;gap:6px"><span class="list-val-red">-${fmt(c.arr)}</span><button class="ab" onclick="openChurnModal(churns.find(x=>x.id===${c.id}))">✏️</button><button class="del-btn" onclick="delChurn(${c.id})">✕</button></span>
       </div>`).join('')+
     `<div class="list-row" style="font-weight:600"><span style="color:var(--text)">Total churn</span><span class="list-val-red">-${fmt(churnTotal)}</span></div>`;
 
@@ -510,7 +510,7 @@ function renderBonus(){
     crosses.map(c=>`
       <div class="list-row">
         <span class="list-label">${c.client} <span class="badge bd" style="font-size:10px">${c.product}</span>${c.licenses?` <span style="color:var(--muted);font-size:10px">${c.licenses} lic.</span>`:''}</span>
-        <span style="display:flex;align-items:center;gap:8px"><span class="list-val-green">+${fmt(c.arr)}</span><button class="del-btn" onclick="delCross(${c.id})">✕</button></span>
+        <span style="display:flex;align-items:center;gap:6px"><span class="list-val-green">+${fmt(c.arr)}</span><button class="ab" onclick="openCrossModal(crosses.find(x=>x.id===${c.id}))">✏️</button><button class="del-btn" onclick="delCross(${c.id})">✕</button></span>
       </div>`).join('')
     :`<div style="font-size:12px;color:var(--muted);padding:8px 0">Sin entradas todavía</div>`;
 
@@ -566,18 +566,38 @@ function editExp(id){ openModal(exps.find(e=>e.id===id)); }
 
 // ── MODALS BONUS ───────────────────────────────────────────
 function openBonusMenu(){ document.getElementById('modal-bmenu').classList.add('open'); }
-function openChurnModal(){ document.getElementById('modal-bmenu').classList.remove('open'); document.getElementById('ch-client').value=''; document.getElementById('ch-date').value=''; document.getElementById('ch-arr').value=''; document.getElementById('modal-churn').classList.add('open'); }
-function openCrossModal(){ document.getElementById('modal-bmenu').classList.remove('open'); document.getElementById('cs-client').value=''; document.getElementById('cs-licenses').value=''; document.getElementById('cs-arr').value=''; document.getElementById('modal-cross').classList.add('open'); }
+let editChurnId=null, editCrossId=null;
+
+function openChurnModal(entry){
+  editChurnId=entry?entry.id:null;
+  document.getElementById('modal-bmenu').classList.remove('open');
+  document.getElementById('ch-client').value=entry?.client||'';
+  document.getElementById('ch-date').value=entry?.date||'';
+  document.getElementById('ch-arr').value=entry?.arr||'';
+  document.getElementById('ch-product').value=entry?.product||'MDM';
+  document.getElementById('modal-churn').classList.add('open');
+}
+function openCrossModal(entry){
+  editCrossId=entry?entry.id:null;
+  document.getElementById('modal-bmenu').classList.remove('open');
+  document.getElementById('cs-client').value=entry?.client||'';
+  document.getElementById('cs-licenses').value=entry?.licenses||'';
+  document.getElementById('cs-product').value=entry?.product||'MDM';
+  document.getElementById('cs-arr').value=entry?.arr||'';
+  document.getElementById('modal-cross').classList.add('open');
+}
 
 function saveChurn(){
-  const c={id:nextChurnId++,client:document.getElementById('ch-client').value||'Sin nombre',date:document.getElementById('ch-date').value||'',arr:parseFloat(document.getElementById('ch-arr').value)||0,product:document.getElementById('ch-product').value};
-  churns.push(c); saveChurns();
+  const c={id:editChurnId||nextChurnId++,client:document.getElementById('ch-client').value||'Sin nombre',date:document.getElementById('ch-date').value||'',arr:parseFloat(document.getElementById('ch-arr').value)||0,product:document.getElementById('ch-product').value};
+  if(editChurnId) churns=churns.map(x=>x.id===editChurnId?c:x); else churns.push(c);
+  saveChurns();
   document.getElementById('modal-churn').classList.remove('open');
   renderBonus();
 }
 function saveCross(){
-  const c={id:nextCrossId++,client:document.getElementById('cs-client').value||'Sin nombre',licenses:parseInt(document.getElementById('cs-licenses').value)||0,product:document.getElementById('cs-product').value,arr:parseFloat(document.getElementById('cs-arr').value)||0};
-  crosses.push(c); saveCrosses();
+  const c={id:editCrossId||nextCrossId++,client:document.getElementById('cs-client').value||'Sin nombre',licenses:parseInt(document.getElementById('cs-licenses').value)||0,product:document.getElementById('cs-product').value,arr:parseFloat(document.getElementById('cs-arr').value)||0};
+  if(editCrossId) crosses=crosses.map(x=>x.id===editCrossId?c:x); else crosses.push(c);
+  saveCrosses();
   document.getElementById('modal-cross').classList.remove('open');
   renderBonus();
 }
