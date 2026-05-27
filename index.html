@@ -343,7 +343,10 @@ const INIT_EXP=[
   {id:18,client:'Counsa',when:'Expansion',driver:'Volume',product:'MDM',arr:660,status:'Closed',forecast:'Won',bigLogo:'No',month:'Apr',quarter:'Q2 2026'},
   {id:19,client:'DactilPlus',when:'Expansion',driver:'Volume',product:'MDM',arr:324,status:'Closed',forecast:'Won',bigLogo:'No',month:'May',quarter:'Q2 2026'},
   {id:20,client:'Sabadell',when:'Expansion',driver:'Volume',product:'MAD',arr:7990,status:'Closed',forecast:'Won',bigLogo:'Yes',month:'May',quarter:'Q2 2026'},
-  {id:21,client:'WeJungle',when:'In the renewal',driver:'Volume',product:'MDM',arr:3572.10,status:'To Be Closed',forecast:'In Progress',bigLogo:'No',month:'May',quarter:'Q2 2026'},
+  {id:21,client:'WeJungle',when:'In the renewal',driver:'Volume',product:'MDM',arr:3572.10,status:'Closed',forecast:'Won',bigLogo:'No',month:'May',quarter:'Q2 2026'},
+  {id:25,client:'Karsos',when:'Expansion',driver:'Volume',product:'MDM',arr:3120,status:'Closed',forecast:'Won',bigLogo:'No',month:'May',quarter:'Q2 2026'},
+  {id:26,client:'Banca de Quinielas de Montevideo',when:'Expansion',driver:'Volume',product:'MDM',arr:1080,status:'Closed',forecast:'Won',bigLogo:'No',month:'May',quarter:'Q2 2026'},
+  {id:27,client:'Derex',when:'Expansion',driver:'Volume',product:'MDM',arr:630,status:'Closed',forecast:'Won',bigLogo:'No',month:'May',quarter:'Q2 2026'},
   {id:22,client:'Cabify/vecttor',when:'Expansion',driver:'Volume',product:'MDM',arr:99000,status:'To Be Closed',forecast:'In Progress',bigLogo:'Yes',month:'Jun',quarter:'Q2 2026'},
   {id:23,client:'Cabify/vecttor',when:'Expansion',driver:'Other',product:'MAD',arr:15588,status:'To Be Closed',forecast:'In Progress',bigLogo:'Yes',month:'Jun',quarter:'Q2 2026'},
   {id:24,client:'Grupo el Castillo',when:'Expansion',driver:'Volume',product:'MDM',arr:8000,status:'To Be Closed',forecast:'In Progress',bigLogo:'No',month:'Jul',quarter:'Q3 2026'}
@@ -358,8 +361,7 @@ const INIT_CHURNS=[
 let exps = JSON.parse(localStorage.getItem('vt_exps')||'null') || INIT_EXP;
 let churns = JSON.parse(localStorage.getItem('vt_churns')||'null') || INIT_CHURNS;
 let crosses = JSON.parse(localStorage.getItem('vt_crosses')||'null') || [];
-let nextExpId = Math.max(...exps.map(e=>e.id)) + 1;
-let nextChurnId = Math.max(...churns.map(c=>c.id)) + 1;
+let nextExpId = Math.max(...exps.map(e=>e.id)) + 1;let nextChurnId = Math.max(...churns.map(c=>c.id)) + 1;
 let nextCrossId = crosses.length ? Math.max(...crosses.map(c=>c.id)) + 1 : 1;
 let editExpId = null;
 let sortKey = 'month', sortDir = 1;
